@@ -84,15 +84,28 @@ text_input = st.text_area("Script de Inferencia:", value=st.session_state.text, 
 st.session_state.text = text_input
 
 async def generate_speech(text, voice, output, p, r, vol):
-    # Algoritmo de limpieza de etiquetas para motores que no soportan SLM nativo aún
-    # Pero las usamos para guiar la prosodia mediante puntuación
-    processed = text.replace("(whispering)", "...").replace("(shouting)", "!!!").replace("(sigh)", "...")
+    # LIMPIEZA DE ETIQUETAS: El motor gratuito no entiende (whispering) 
+    # y lo interpreta como ruido, causando el error NoAudioReceived.
+    # Esta función las convierte en puntuación que la IA sí entiende.
+    processed = text.replace("(whispering)", "...").replace("(shouting)", "!!!")
+    processed = processed.replace("(sigh)", "...").replace("(laugh)", " ha ha ha ")
     
-    p_str = f"{p}Hz"
-    r_str = f"+{r}%" if r >= 0 else f"{r}%"
+    # NORMALIZACIÓN DE PARÁMETROS:
+    # Limitamos los valores para no romper el motor de audio
+    safe_p = max(min(p, 20), -40) # No bajar de -40Hz
+    safe_r = max(min(r, 50), -25) # No bajar de -25%
     
-    communicate = edge_tts.Communicate(processed, voice, rate=r_str, pitch=p_str, volume=vol)
-    await communicate.save(output)
+    p_str = f"{safe_p}Hz"
+    r_str = f"+{safe_r}%" if safe_r >= 0 else f"{safe_r}%"
+    
+    try:
+        communicate = edge_tts.Communicate(processed, voice, rate=r_str, pitch=p_str, volume=vol)
+        await communicate.save(output)
+    except Exception as e:
+        # Si falla con los parámetros Pro, intenta una versión "Safe" automática
+        st.warning("Parámetros demasiado agresivos. Re-intentando en modo seguro...")
+        communicate = edge_tts.Communicate(processed, voice, rate="+5%", pitch="-10Hz", volume="+10%")
+        await communicate.save(output)
 
 st.markdown("---")
 if st.button("INVOKE SLM SYNTHESIS", icon="🔥", use_container_width=True):
@@ -108,6 +121,7 @@ if st.button("INVOKE SLM SYNTHESIS", icon="🔥", use_container_width=True):
         st.error("No hay datos para la síntesis.")
 
 st.caption("Ecosistema de Síntesis Unificada 2026 | Fish Speech & Qwen3 Optimized Architecture")
+
 
 
 
