@@ -65,18 +65,26 @@ with st.sidebar:
 raw_text = st.text_area("Guion:", height=300, placeholder="Escribe tu mensaje...")
 
 def apply_aggression(text):
-    # Convierte a mayúsculas y añade puntos forzados para Staccato
-    words = text.upper().split()
-    return ". ".join(words) + "."
+    # En lugar de punto en cada palabra, usamos comas para velocidad
+    # y exclamaciones para fuerza, manteniendo las frases unidas.
+    text = text.upper()
+    # Creamos grupos de 3 palabras para mantener el ritmo rápido
+    words = text.split()
+    phrases = [" ".join(words[i:i+3]) for i in range(0, len(words), 3)]
+    return ", ".join(phrases) + "!"
 
 async def generate_audio(text, voice, output_file, p, r, echo_mode, agg_mode):
-    # Procesamiento de texto
-    processed = apply_aggression(text) if agg_mode else text
-    if echo_mode:
-        processed = processed.replace(".", "... ").replace(",", ", ... ")
+    # Procesamiento Híbrido
+    if agg_mode:
+        # Mantiene la estructura pero inyecta micro-pausas de tensión
+        processed = apply_aggression(text)
+    else:
+        processed = text
     
+    # Calibración de 'Knights' fluida:
+    # Subimos el rate para que la agresividad no sea lenta
     p_str = f"{p}Hz"
-    r_str = f"+{r}%" if r >= 0 else f"{r}%"
+    r_str = f"+{r+10}%" if agg_mode else f"{r}%" # Auto-aceleración en modo agresivo
     
     communicate = edge_tts.Communicate(processed, voice, rate=r_str, pitch=p_str, volume="+20%")
     await communicate.save(output_file)
@@ -101,6 +109,7 @@ if st.button("INVOKE AUTHORITY"):
 
 st.markdown("---")
 st.caption("The Obsidian Engine Pro | Cathedral & Aggression Logic | Zero Cost")
+
 
 
 
