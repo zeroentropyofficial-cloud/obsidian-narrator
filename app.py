@@ -42,16 +42,19 @@ voices = {
 text_input = st.text_area("Input Script:", height=250, placeholder="You need more COURAGE...")
 
 async def generate_audio(text, voice, output_file):
-    # CALIBRACIÓN PARA FLUIDEZ:
-    # rate=+18% -> Un poco más rápido para evitar que se detenga demasiado en los puntos.
-    # pitch=-15Hz -> Profundo, pero menos forzado para evitar el sonido robótico.
-    communicate = edge_tts.Communicate(
-        text, 
-        voice, 
-        rate="+18%", 
-        pitch="-15Hz",
-        volume="+10%"
-    )
+    # Creamos un bloque SSML para controlar la expresión
+    # <prosody> controla el tono y la velocidad de fragmentos específicos
+    ssml_text = f"""
+    <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
+        <voice name='{voice}'>
+            <prosody pitch='-15Hz' rate='+15%' volume='+10%'>
+                {text}
+            </prosody>
+        </voice>
+    </speak>
+    """
+    communicate = edge_tts.Communicate(text, voice, rate="+15%", pitch="-15Hz")
+    # Nota: Si el motor soporta SSML directo, usamos communicate.xml_string
     await communicate.save(output_file)
 
 if st.button("INVOKE VOICE"):
@@ -63,6 +66,7 @@ if st.button("INVOKE VOICE"):
         with open(output_path, 'rb') as f:
             st.audio(f.read(), format='audio/mp3')
             st.download_button("SAVE MP3", data=open(output_path, 'rb'), file_name=f"{filename}.mp3")
+
 
 
 
