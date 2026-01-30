@@ -32,14 +32,17 @@ voices = {
 text_input = st.text_area("Script", placeholder="Maximum impact starts here...")
 
 async def generate_audio(text, voice, output_file):
-    # 'rate=+12%' -> Rapidez rítmica pero con peso (Fast but rhythmic)
-    # 'pitch=-30Hz' -> Forzamos el tono ultra-grave de Knights
-    # 'volume=+0%' -> Mantenemos la presión sonora al máximo
+    # 'rate=+10%' -> Ritmo controlado y autoritario.
+    # 'pitch=-18Hz' -> Profundo pero natural, evitando el efecto 'robot'.
+    # 'volume=+15%' -> Forzamos que la voz suene proyectada (con autoridad).
     communicate = edge_tts.Communicate(
         text, 
         voice, 
-        rate="+12%", 
-        pitch="-30Hz"
+        rate="+10%", 
+        pitch="-18Hz",
+        volume="+15%"
+    )
+    await communicate.save(output_file)
     )
     await communicate.save(output_file)
 
@@ -51,6 +54,7 @@ if st.button("INVOKE VOICE"):
         audio_file = open(output_path, 'rb')
         st.audio(audio_file.read(), format='audio/mp3')
         st.download_button("DOWNLOAD MP3", data=open(output_path, 'rb'), file_name=output_path)
+
 
 
 
