@@ -39,8 +39,16 @@ voices = {
 text_input = st.text_area("Enter your script / Ingrese su guion:", placeholder="El imperio caerá al amanecer...", height=200)
 
 async def generate_audio(text, voice, output_file):
-    # 'rate=+20%' hace que sea rápido y 'pitch=-10Hz' lo hace más grave
-    communicate = edge_tts.Communicate(text, voice, rate="+25%", pitch="-15Hz")
+    # 'rate=+35%' aumenta la velocidad para que sea rítmica y rápida
+    # 'pitch=-25Hz' baja la frecuencia para que sea ultra-grave y autoritaria
+    # 'volume=+0%' asegura claridad total
+    communicate = edge_tts.Communicate(
+        text, 
+        voice, 
+        rate="+35%", 
+        pitch="-25Hz",
+        volume="+0%"
+    )
     await communicate.save(output_file)
 
 if st.button("INVOKE VOICE"):
@@ -60,3 +68,4 @@ if st.button("INVOKE VOICE"):
 
 st.markdown("---")
 st.caption("Zero Fluff. Maximum Impact. Powered by Obsidian Logic.")
+
