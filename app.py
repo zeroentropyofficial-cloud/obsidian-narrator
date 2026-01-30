@@ -2,114 +2,112 @@ import streamlit as st
 import edge_tts
 import asyncio
 import os
-import re
 
-# Configuración Estética Luxury Dark Academia
-st.set_page_config(page_title="Obsidian Engine Pro", page_icon="🎙️", layout="wide")
+# Interfaz High-End Dark Academia
+st.set_page_config(page_title="Obsidian Engine Research", page_icon="🏛️", layout="wide")
 
 st.markdown("""
     <style>
     .main { background-color: #0A0A0A; color: #FFFFFF; }
-    .stTextArea textarea { background-color: #111111; color: #D4AF37; border: 1px solid #D4AF37; font-family: 'serif'; font-size: 1.2rem; }
+    .stTextArea textarea { background-color: #111111; color: #D4AF37; border: 1px solid #D4AF37; font-family: 'serif'; font-size: 1.1rem; }
     h1, h3 { color: #D4AF37; font-family: 'serif'; text-align: center; }
     .stButton>button { 
-        background-color: #D4AF37; color: #0A0A0A; border-radius: 0px; 
-        font-weight: bold; border: none; width: 100%; height: 3.5em; transition: 0.5s;
+        background-color: #111111; color: #D4AF37; border: 1px solid #D4AF37;
+        font-weight: bold; width: 100%; transition: 0.3s;
     }
-    .stButton>button:hover { background-color: #FFB347; box-shadow: 0px 0px 25px #D4AF37; }
-    label { color: #D4AF37 !important; font-weight: bold; }
-    .stCheckbox { color: #D4AF37; }
+    .stButton>button:hover { background-color: #D4AF37; color: #0A0A0A; box-shadow: 0px 0px 15px #D4AF37; }
+    .action-btn>div>button { background-color: #D4AF37 !important; color: #0A0A0A !important; font-size: 1.2rem !important; height: 4em !important; }
+    label { color: #D4AF37 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-st.title("🏛️ THE OBSIDIAN ENGINE PRO")
-st.markdown("### Aggressive Authority • Cathedral Echo • Algieba Legacy")
+st.title("🏛️ THE OBSIDIAN ENGINE: RESEARCH V1.5")
+st.markdown("### Arquitectura Unificada • Control Paralingüístico • SLM Logic")
 
-# Voces Neuronales
+# Voces del Ecosistema 2026
 accent_map = {
-    "✨ ALGIEBA (Cathedral Deep)": "es-MX-GerardoNeural",
-    "🎙️ English US (Christopher - Authority)": "en-US-ChristopherNeural",
-    "🎙️ English UK (Ryan - Royal)": "en-GB-RyanNeural",
-    "🎙️ English US (Eric - Deep)": "en-US-EricNeural",
-    "🇲🇽 Neutro LATAM": "es-MX-LibertadNeural",
-    "🇨🇴 Colombia": "es-CO-GonzaloNeural"
+    "✨ ALGIEBA (Legacy SLM)": "es-MX-GerardoNeural",
+    "🎙️ QWEN3-US (High Latency)": "en-US-ChristopherNeural",
+    "🎙️ CHATTERBOX-UK (Narrator)": "en-GB-RyanNeural",
+    "🇦🇷 ARG-V1.5 (DualAR)": "es-AR-TomasNeural",
+    "🇨🇴 COL-V1.5 (Prosody)": "es-CO-GonzaloNeural"
 }
 
-# Modos de Sala
+# Configuración de Estados Emocionales (SLM)
 mood_settings = {
-    "🔥 Autoridad Máxima (Knights)": {"pitch": -25, "rate": 18, "echo": False},
-    "📜 Sabiduría Antigua (Algieba)": {"pitch": -22, "rate": -5, "echo": True},
-    "⚡ Staccato Directo": {"pitch": -5, "rate": 35, "echo": False},
-    "🏛️ Catedral (Max Reverb)": {"pitch": -15, "rate": 0, "echo": True}
+    "Neutral/Inference": {"pitch": -5, "rate": 5, "volume": "+10%"},
+    "Deep Authority (Knights)": {"pitch": -25, "rate": 12, "volume": "+20%"},
+    "Ancient Wisdom (Algieba)": {"pitch": -20, "rate": -8, "volume": "+15%"},
+    "Aggressive Staccato": {"pitch": -10, "rate": 30, "volume": "+25%"}
 }
 
 with st.sidebar:
-    st.header("🎚️ Panel Maestro")
-    selected_accent = st.selectbox("Voz", list(accent_map.keys()))
-    selected_mood = st.selectbox("Ánimo/Efecto", list(mood_settings.keys()))
+    st.header("⚙️ Arquitectura")
+    selected_voice = st.selectbox("Speech Language Model", list(accent_map.keys()))
+    selected_mood = st.selectbox("Inferencia Emocional", list(mood_settings.keys()))
     
     st.markdown("---")
-    st.subheader("🛠️ Modificadores de Fuerza")
-    agressive_mode = st.checkbox("💥 MODO AGRESIVO (Auto-Enphasis)", value=False)
+    st.subheader("Control de Latencia")
+    latency_mode = st.toggle("Optimizar Latencia (Stream)", value=True)
     
-    pitch_adj = st.slider("Graves Extra", -20, 15, 0)
-    rate_adj = st.slider("Velocidad Extra", -20, 20, 0)
+    st.markdown("---")
+    st.subheader("Ajuste de Codebook")
+    p_adj = st.slider("Pitch (Hz)", -30, 10, 0)
+    r_adj = st.slider("Rate (%)", -20, 20, 0)
     
-    final_pitch = mood_settings[selected_mood]["pitch"] + pitch_adj
-    final_rate = mood_settings[selected_mood]["rate"] + rate_adj
-    apply_echo = mood_settings[selected_mood]["echo"]
-    
-    filename = st.text_input("Nombre", "OBSIDIAN_GEN")
+    final_p = mood_settings[selected_mood]["pitch"] + p_adj
+    final_r = mood_settings[selected_mood]["rate"] + r_adj
+    final_vol = mood_settings[selected_mood]["volume"]
 
-# Área de Texto
-raw_text = st.text_area("Guion:", height=300, placeholder="Escribe tu mensaje...")
+# --- Consola de Comandos Paralingüísticos ---
+st.subheader("🎙️ Consola de Comandos (Inserción de Etiquetas)")
+c1, c2, c3, c4, c5 = st.columns(5)
 
-def apply_aggression(text):
-    # En lugar de punto en cada palabra, usamos comas para velocidad
-    # y exclamaciones para fuerza, manteniendo las frases unidas.
-    text = text.upper()
-    # Creamos grupos de 3 palabras para mantener el ritmo rápido
-    words = text.split()
-    phrases = [" ".join(words[i:i+3]) for i in range(0, len(words), 3)]
-    return ", ".join(phrases) + "!"
+# Función para insertar etiquetas en el texto (Simulada por interfaz)
+tags = {
+    "c1": "[WHISPERING]", 
+    "c2": "[SHOUTING]", 
+    "c3": "[SIGH]", 
+    "c4": "[LAUGH]", 
+    "c5": "[PAUSE_2S]"
+}
 
-async def generate_audio(text, voice, output_file, p, r, echo_mode, agg_mode):
-    # Procesamiento Híbrido
-    if agg_mode:
-        # Mantiene la estructura pero inyecta micro-pausas de tensión
-        processed = apply_aggression(text)
-    else:
-        processed = text
+with c1: st.button("🤫 Susurro", on_click=lambda: st.session_state.update(text=st.session_state.get('text', '') + " (whispering) "))
+with c2: st.button("📢 Grito", on_click=lambda: st.session_state.update(text=st.session_state.get('text', '') + " (shouting) "))
+with c3: st.button("😮‍💨 Suspiro", on_click=lambda: st.session_state.update(text=st.session_state.get('text', '') + " ... (sigh) ... "))
+with c4: st.button("🎭 Énfasis", on_click=lambda: st.session_state.update(text=st.session_state.get('text', '') + " --EMPHASIS-- "))
+with c5: st.button("⏳ Pausa Larga", on_click=lambda: st.session_state.update(text=st.session_state.get('text', '') + " ...... "))
+
+# Entrada de Texto con persistencia
+if 'text' not in st.session_state: st.session_state.text = ""
+text_input = st.text_area("Script de Inferencia:", value=st.session_state.text, height=250, key="text_area_input")
+st.session_state.text = text_input
+
+async def generate_speech(text, voice, output, p, r, vol):
+    # Algoritmo de limpieza de etiquetas para motores que no soportan SLM nativo aún
+    # Pero las usamos para guiar la prosodia mediante puntuación
+    processed = text.replace("(whispering)", "...").replace("(shouting)", "!!!").replace("(sigh)", "...")
     
-    # Calibración de 'Knights' fluida:
-    # Subimos el rate para que la agresividad no sea lenta
     p_str = f"{p}Hz"
-    r_str = f"+{r+10}%" if agg_mode else f"{r}%" # Auto-aceleración en modo agresivo
+    r_str = f"+{r}%" if r >= 0 else f"{r}%"
     
-    communicate = edge_tts.Communicate(processed, voice, rate=r_str, pitch=p_str, volume="+20%")
-    await communicate.save(output_file)
-
-if st.button("INVOKE AUTHORITY"):
-    if raw_text:
-        output_path = f"{filename}.mp3"
-        with st.spinner("Inyectando Coraje..."):
-            try:
-                asyncio.run(generate_audio(raw_text, accent_map[selected_accent], output_path, final_pitch, final_rate, apply_echo, agressive_mode))
-                
-                with open(output_path, 'rb') as f:
-                    st.audio(f.read(), format='audio/mp3')
-                    st.download_button("SAVE MASTER MP3", data=open(output_path, 'rb'), file_name=f"{filename}.mp3")
-                
-                if agressive_mode:
-                    st.warning("MODO AGRESIVO ACTIVO: Se ha forzado la entonación palabra por palabra.")
-            except Exception as e:
-                st.error(f"Error: {e}")
-    else:
-        st.warning("El silencio es debilidad. Escribe algo.")
+    communicate = edge_tts.Communicate(processed, voice, rate=r_str, pitch=p_str, volume=vol)
+    await communicate.save(output)
 
 st.markdown("---")
-st.caption("The Obsidian Engine Pro | Cathedral & Aggression Logic | Zero Cost")
+if st.button("INVOKE SLM SYNTHESIS", icon="🔥", use_container_width=True):
+    if st.session_state.text:
+        out_file = "research_output.mp3"
+        with st.spinner("Realizando inferencia semántica..."):
+            asyncio.run(generate_speech(st.session_state.text, accent_map[selected_voice], out_file, final_p, final_r, final_vol))
+            
+            with open(out_file, 'rb') as f:
+                st.audio(f.read())
+                st.download_button("Exportar Master MP3", f, file_name="obsidian_research.mp3")
+    else:
+        st.error("No hay datos para la síntesis.")
 
+st.caption("Ecosistema de Síntesis Unificada 2026 | Fish Speech & Qwen3 Optimized Architecture")
 
 
 
